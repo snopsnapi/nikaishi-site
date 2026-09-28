@@ -7,7 +7,7 @@
 <meta name="description" content="Продвинутые индивидуальные уроки реверс-инжиниринга во Fusion 360 для новичков и опытных пользователей: сканы, поверхности, листовой металл. Реверс-инжиниринг на заказ.">
 <meta property="og:title" content="Nikaishi — продвинутый реверс во Fusion 360">
 <meta property="og:description" content="Продвинутые уроки реверс-инжиниринга во Fusion 360. Не базовый курс, а работа со сканами на уровне производства.">
-<meta property="og:image" content="https://nikaishi.ru/works/125_0.jpg">
+<meta property="og:image" content="https://nikaishi.ru/works/new/snorkel.webp">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#111214" media="(prefers-color-scheme: dark)">
 <script>
@@ -125,13 +125,48 @@ header{position:sticky;top:0;z-index:20;background:var(--header);backdrop-filter
 .facts{display:grid;grid-template-columns:repeat(4,auto);justify-content:start;gap:18px 32px;margin-top:40px;padding-top:28px;border-top:1px solid var(--line)}
 .facts b{display:block;font-family:Unbounded;font-size:22px}
 .facts span{font-size:14px;line-height:1.4;color:var(--ink-2);display:block;margin-top:4px}
-.collage{position:relative;aspect-ratio:1/1;width:100%}
-.collage figure{position:absolute;background:#fff;border-radius:var(--r);box-shadow:0 20px 50px -20px rgba(0,0,0,.28);overflow:hidden;padding:10px}
-.collage figure img{width:100%;height:100%;object-fit:contain}
-.collage .c1{inset:0 22% 30% 0}
-.collage .c2{inset:8% 0 50% 58%}
-.collage .c3{inset:56% 40% 0 6%}
-.collage .c4{inset:54% 0 4% 64%}
+/* scan -> CAD 3D compare */
+.s3d-sec{background:var(--paper)}
+.s3d{position:relative;margin-top:40px;aspect-ratio:16/8;min-height:340px;border-radius:24px;overflow:hidden;background:radial-gradient(120% 90% at 50% 20%,#ffffff 0%,#e9ebee 70%,#dfe2e6 100%);border:1px solid var(--line);touch-action:pan-y}
+.is-dark .s3d{background:radial-gradient(120% 90% at 50% 20%,#2a2d32 0%,#17191c 75%,#111214 100%)}
+.s3d canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:none}
+.s3d canvas:active{cursor:grabbing}
+.s3d-handle{position:absolute;top:0;bottom:0;left:50%;width:44px;margin-left:-22px;background:none;border:0;padding:0;cursor:ew-resize;touch-action:none;z-index:2;opacity:0;transition:opacity .4s}
+.s3d.ready .s3d-handle{opacity:1}
+.s3d-handle::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--red)}
+.s3d-handle i{position:absolute;left:50%;top:50%;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;background:var(--red);box-shadow:0 6px 20px rgba(215,20,26,.45)}
+.s3d-handle i::before,.s3d-handle i::after{content:"";position:absolute;top:50%;width:0;height:0;border:6px solid transparent;margin-top:-6px}
+.s3d-handle i::before{left:6px;border-right-color:#fff}.s3d-handle i::after{right:6px;border-left-color:#fff}
+.s3d-handle:focus-visible i{outline:2px solid var(--ink);outline-offset:3px}
+/* idle hint: the split line and knob softly pulse until the first touch */
+@keyframes s3dGlow{0%,100%{box-shadow:0 0 0 0 rgba(215,20,26,0)}50%{box-shadow:0 0 14px 3px rgba(215,20,26,.55)}}
+@keyframes s3dKnob{0%,100%{box-shadow:0 6px 20px rgba(215,20,26,.45),0 0 0 0 rgba(215,20,26,.45)}50%{box-shadow:0 6px 20px rgba(215,20,26,.45),0 0 0 12px rgba(215,20,26,0)}}
+.s3d:not(.touched) .s3d-handle::before{animation:s3dGlow 2.2s ease-in-out infinite}
+.s3d:not(.touched) .s3d-handle i{animation:s3dKnob 2.2s ease-out infinite}
+@media (prefers-reduced-motion:reduce){.s3d .s3d-handle::before,.s3d .s3d-handle i{animation:none}}
+.s3d-tag{position:absolute;top:18px;z-index:1;font:700 12px/1 Manrope;letter-spacing:.14em;text-transform:uppercase;padding:8px 12px;border-radius:999px;background:var(--card);color:var(--ink);border:1px solid var(--line)}
+.s3d-tag.l{left:18px}.s3d-tag.r{right:18px;background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.s3d-status{position:absolute;inset:0;display:grid;place-items:center;color:var(--ink-2);font-weight:600;pointer-events:none}
+.s3d-hint{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);font-size:13px;color:var(--ink-2);background:var(--card);border:1px solid var(--line);padding:6px 12px;border-radius:999px;white-space:nowrap;pointer-events:none}
+@media (max-width:560px){.s3d{aspect-ratio:4/5}.s3d-hint{font-size:11px}}
+
+/* hero collage: 4 cards rotate through slots clockwise */
+.orbit{position:relative;aspect-ratio:1/1;width:100%;perspective:1100px}
+/* square slots, so Flip scales cards uniformly and images never distort */
+.orb{position:absolute;display:block;aspect-ratio:1/1;cursor:pointer}
+.orb .tilt{position:relative;display:block;width:100%;height:100%;background:#fff;border-radius:var(--r);padding:6%;box-shadow:0 20px 50px -20px rgba(0,0,0,.3);transition:box-shadow .4s,filter .4s,opacity .4s}
+.orb img{width:100%;height:100%;object-fit:contain;pointer-events:none}
+.orb .tilt::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 2px var(--red);opacity:0;transition:opacity .3s}
+/* slots never overlap (gaps leave room for the hover scale) */
+.s0{left:0;top:0;width:57%;z-index:4}
+.s1{left:62%;top:5%;width:38%;z-index:3}
+.s2{left:64%;top:48%;width:36%;z-index:2}
+.s3{left:8%;top:62%;width:37%;z-index:3}
+.orb.leaving{z-index:9}
+.orb.hover{z-index:10}
+.orb.hover .tilt{box-shadow:0 40px 80px -25px rgba(0,0,0,.45)}
+.orb.hover .tilt::after{opacity:1}
+.orbit.paused .orb:not(.hover):not(.leaving) .tilt{filter:saturate(.45) brightness(.96)}
 .tag{position:absolute;left:12px;bottom:10px;font-size:12px;font-weight:700;background:var(--ink);color:#fff;padding:4px 10px;border-radius:999px}
 
 /* how */
@@ -159,6 +194,9 @@ header{position:sticky;top:0;z-index:20;background:var(--header);backdrop-filter
 .work:hover{transform:translateY(-4px)}
 .work .img{aspect-ratio:1/1;padding:14px;display:grid;place-items:center}
 .work img{max-height:100%;object-fit:contain}
+/* media fits the frame instead of stretching it (square renders in 2:1 wide cards) */
+.work .img{position:relative}
+.work .img>img,.work .img>video{position:absolute;inset:14px;width:calc(100% - 28px);height:calc(100% - 28px);max-height:none;object-fit:contain;display:block}
 .work p{padding:12px 16px 16px;font-weight:700;font-size:14px;border-top:1px solid #eee;line-height:1.35}
 .work.wide{grid-column:span 2}
 .work.wide .img{aspect-ratio:2/1}
@@ -203,7 +241,7 @@ footer a:hover{color:var(--red)}
   .gallery{grid-template-columns:repeat(2,1fr)}
   .menu{display:none}
   .logo-sep,.logo-desc{display:none}
-  .collage{max-width:520px;width:100%;margin:0 auto}
+  .orbit{max-width:520px;width:100%;margin:0 auto}
 }
 @media (max-width:560px){
   body{font-size:16px}
@@ -260,7 +298,7 @@ footer a:hover{color:var(--red)}
   <div class="wrap">
     <div class="reveal">
       <h1>Онлайн-уроки по&nbsp;<em>Fusion&nbsp;360</em></h1>
-      <p class="lead">Индивидуальные уроки с упором на реверс-инжиниринг — для новичков и опытных пользователей. Выравнивание сканов, поверхности класса А, листовой металл под лазер: сложные вещи простым языком.</p>
+      <p class="lead">Индивидуальные уроки с упором на реверс-инжиниринг — для новичков и опытных пользователей. Выравнивание сканов, сложные поверхности, листовой металл под лазер: сложные вещи простым языком.</p>
       <div class="cta">
         <a class="btn" href="https://t.me/snopsnapi" target="_blank" rel="noopener">Написать в Telegram →</a>
         <a class="btn ghost" href="#works">Смотреть работы</a>
@@ -273,11 +311,11 @@ footer a:hover{color:var(--red)}
         <div><b>Сканы</b><span>ваши или из моей библиотеки</span></div>
       </div>
     </div>
-    <div class="collage reveal" aria-hidden="true">
-      <figure class="c1"><img src="works/125_0.jpg" alt=""></figure>
-      <figure class="c2"><img src="works/140_0.jpg" alt=""></figure>
-      <figure class="c3"><img src="works/137_0.jpg" alt=""></figure>
-      <figure class="c4"><img src="works/133_0.jpg" alt=""></figure>
+    <div class="orbit reveal" id="orbit">
+      <a class="orb s0" href="#works"><span class="tilt"><img src="works/new/snorkel.webp" alt="Шноркель"></span></a>
+      <a class="orb s1" href="#works"><span class="tilt"><img src="works/new/headlight.webp" alt="Корпус фары"></span></a>
+      <a class="orb s2" href="#works"><span class="tilt"><img src="works/new/wheel.webp" alt="Руль"></span></a>
+      <a class="orb s3" href="#works"><span class="tilt"><img src="works/new/bracket.webp" alt="Кронштейн подвески"></span></a>
     </div>
   </div>
 </section>
@@ -351,27 +389,41 @@ footer a:hover{color:var(--red)}
   </div>
 </section>
 
+<section class="s3d-sec" id="scan-cad">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="kicker">Живой пример</div>
+      <h2>Из скана — в CAD</h2>
+      <p class="lead">Решётка радиатора: слева сырой 3D-скан, справа готовая CAD-модель. Двигайте ползунок и вращайте деталь.</p>
+    </div>
+    <div class="s3d reveal" id="scan3d">
+      <canvas aria-label="3D-модель: скан и CAD решётки радиатора"></canvas>
+      <span class="s3d-tag l">Скан</span><span class="s3d-tag r">CAD</span>
+      <button class="s3d-handle" type="button" aria-label="Граница скан / CAD, стрелки влево-вправо"><i></i></button>
+      <span class="s3d-status">Загрузка…</span>
+      <span class="s3d-hint">Тяните ползунок · вращайте мышью или пальцем</span>
+    </div>
+  </div>
+</section>
+
 <section class="works" id="works">
   <div class="wrap">
     <div class="reveal">
       <div class="kicker">Работы</div>
       <h2>Реверс по сканам и фото</h2>
-      <p class="lead">Примеры реверса: автомобильные детали, корпуса, механика. Больше работ и видео процесса в Telegram-канале.</p>
+      <p class="lead">Примеры реверса: автомобильные детали, корпуса, механика.</p>
     </div>
     <div class="gallery">
-      <a class="work wide reveal" href="https://t.me/ReverseNikaishi/125" target="_blank" rel="noopener"><div class="img"><img src="works/125_0.jpg" alt="Реверс деталей подвески"></div><p>Детали подвески: листовой металл под лазерную резку</p></a>
-      <a class="work reveal" href="https://t.me/ReverseNikaishi/140" target="_blank" rel="noopener"><div class="img"><img src="works/140_0.jpg" alt="Корпус фары"></div><p>Корпус фары</p></a>
-      <a class="work reveal" href="https://t.me/ReverseNikaishi/141" target="_blank" rel="noopener"><div class="img"><img src="works/141_1.jpg" alt="Козырёк двери"></div><p>Козырёк на дверь</p></a>
-      <a class="work reveal" href="https://t.me/ReverseNikaishi/130" target="_blank" rel="noopener"><div class="img"><img src="works/130_0.jpg" alt="Крепление под iPad"></div><p>Крепление торпеды под iPad</p></a>
-      <a class="work reveal" href="https://t.me/ReverseNikaishi/138" target="_blank" rel="noopener"><div class="img"><img src="works/138_0.jpg" alt="Корпус с мелкой геометрией"></div><p>Корпус с кучей мелкой геометрии</p></a>
-      <a class="work reveal" href="https://t.me/ReverseNikaishi/133" target="_blank" rel="noopener"><div class="img"><img src="works/133_0.jpg" alt="Теннисные ракетки"></div><p>Ракетки необычной формы</p></a>
-      <a class="work reveal" href="https://t.me/ReverseNikaishi/142" target="_blank" rel="noopener"><div class="img"><img src="works/142_0.jpg" alt="Лопасть"></div><p>Лопасть</p></a>
-      <a class="work reveal" href="https://t.me/ReverseNikaishi/137" target="_blank" rel="noopener"><div class="img"><img src="works/137_0.jpg" alt="Колпачок"></div><p>Колпачок и шестерня по эскизу</p></a>
-      <a class="work reveal" href="https://t.me/ReverseNikaishi/124" target="_blank" rel="noopener"><div class="img"><img src="works/124_0.jpg" alt="Корпус стеклоподъёмника"></div><p>Корпус стеклоподъёмника</p></a>
-      <a class="work reveal" href="https://t.me/ReverseNikaishi/131" target="_blank" rel="noopener"><div class="img"><img src="works/131_1.jpg" alt="Шестерня с валом"></div><p>Шестерня с валом</p></a>
-      <a class="work reveal" href="https://t.me/ReverseNikaishi/135" target="_blank" rel="noopener"><div class="img"><img src="works/135_1.jpg" alt="Кнопка"></div><p>Кнопка по сканам и фото</p></a>
+      <a class="work wide reveal" href="https://t.me/ReverseNikaishi/143" target="_blank" rel="noopener"><div class="img"><img src="works/new/snorkel-wide.webp" alt="Шноркель" loading="lazy"></div><p>Шноркель для авто</p></a>
+      <a class="work wide reveal" href="https://t.me/ReverseNikaishi/140" target="_blank" rel="noopener"><div class="img"><img src="works/new/headlight-wide.webp" alt="Корпус фары" loading="lazy"></div><p>Корпус фары</p></a>
+      <a class="work reveal" href="https://t.me/ReverseNikaishi/125" target="_blank" rel="noopener"><div class="img"><img src="works/new/bracket.webp" alt="Детали подвески" loading="lazy"></div><p>Детали подвески: листовой металл под лазер</p></a>
+      <a class="work reveal" href="https://t.me/ReverseNikaishi/47" target="_blank" rel="noopener"><div class="img"><img src="works/new/wheel.webp" alt="Руль" loading="lazy"></div><p>Руль под 3D-печать по деформированному скану</p></a>
+      <a class="work reveal" href="https://t.me/ReverseNikaishi/94" target="_blank" rel="noopener"><div class="img"><img src="works/new/bottle.webp" alt="Канистра" loading="lazy"></div><p>Канистра</p></a>
+      <a class="work reveal" href="https://t.me/ReverseNikaishi/141" target="_blank" rel="noopener"><div class="img"><img src="works/141_1.jpg" alt="Козырёк двери" loading="lazy"></div><p>Козырёк на дверь</p></a>
+      <a class="work wide reveal" href="https://t.me/ReverseNikaishi/123" target="_blank" rel="noopener"><div class="img"><img src="works/new/trim-wide.webp" alt="Накладка" loading="lazy"></div><p>Небольшая накладка</p></a>
+      <a class="work wide reveal" href="https://t.me/ReverseNikaishi/144" target="_blank" rel="noopener"><div class="img"><img src="works/new/frame-wide.webp" alt="Трубный каркас" loading="lazy"></div><p>Трубный каркас</p></a>
     </div>
-    <div class="more"><a class="btn ghost" href="https://t.me/ReverseNikaishi" target="_blank" rel="noopener">Канал @ReverseNikaishi →</a></div>
+    <div class="more"><a class="btn ghost" href="https://t.me/ReverseNikaishi" target="_blank" rel="noopener">Больше работ в Telegram-канале →</a></div>
   </div>
 </section>
 
@@ -415,6 +467,14 @@ footer a:hover{color:var(--red)}
   </div>
 </footer>
 
+<script type="importmap">{"imports":{"three":"./vendor/three/three.module.min.js","three/addons/":"./vendor/three/addons/"}}</script>
+<script>
+// load three.js + models only when the 3D block gets close to the viewport
+{const el=document.getElementById('scan3d');
+ if(el) new IntersectionObserver((es,o)=>{if(es[0].isIntersecting){o.disconnect();import('./scan3d.js');}},{rootMargin:'400px'}).observe(el);}
+</script>
+<script src="vendor/gsap.min.js"></script>
+<script src="vendor/Flip.min.js"></script>
 <script>
 document.getElementById('themeSw').addEventListener('click',()=>{
   const go=()=>__setTheme(__isDark()?'light':'dark');
@@ -428,6 +488,59 @@ document.getElementById('themeSw').addEventListener('click',()=>{
 document.getElementById('y').textContent=new Date().getFullYear();
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');io.unobserve(e.target)}}),{threshold:.12});
 document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+// gallery videos: play only while on screen
+{const vio=new IntersectionObserver(es=>es.forEach(e=>{const v=e.target; if(e.isIntersecting){v.muted=true; v.play().catch(()=>{});} else v.pause();}),{threshold:.25});
+ document.querySelectorAll('.work video').forEach(v=>vio.observe(v));}
+
+// hero collage: cards swap slots clockwise; hover pauses it, enlarges and 3D-tilts the card
+(()=>{
+  const orbit=document.getElementById('orbit'); if(!orbit) return;
+  // slots go clockwise: big top-left -> top-right -> bottom-right -> bottom-left.
+  // Layout change is animated with GSAP Flip (FLIP technique: transforms only, no layout thrash).
+  const cards=[...orbit.querySelectorAll('.orb')];
+  const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  if(!window.gsap||!window.Flip) return;
+  gsap.registerPlugin(Flip);
+  let slot=cards.map((_,i)=>i), hovered=null, visible=true, busy=false;
+
+  const rotate=()=>{
+    if(hovered||busy||!visible||document.hidden) return;
+    busy=true;
+    const state=Flip.getState(cards);
+    slot=slot.map(s=>(s+1)%4);
+    cards.forEach((c,i)=>{c.classList.remove('s0','s1','s2','s3'); c.classList.add('s'+slot[i]);});
+    Flip.from(state,{duration:1.6,ease:'power2.inOut',scale:true,stagger:.08,onComplete:()=>busy=false});
+  };
+
+  // idle float + hover tilt live on the inner .tilt, so they never fight Flip on the outer card
+  const tilts=cards.map(c=>c.querySelector('.tilt'));
+  if(!reduce){
+    tilts.forEach((t,i)=>gsap.to(t,{y:-8,duration:3,ease:'sine.inOut',yoyo:true,repeat:-1,delay:i*.7}));
+    setInterval(rotate,7000);
+  }
+  cards.forEach((c,i)=>{
+    const t=tilts[i];
+    const rx=gsap.quickTo(t,'rotationX',{duration:.5,ease:'power3'}), ry=gsap.quickTo(t,'rotationY',{duration:.5,ease:'power3'});
+    c.addEventListener('pointerenter',()=>{
+      hovered=c; c.classList.remove('leaving'); c.classList.add('hover'); orbit.classList.add('paused');
+      gsap.to(t,{scale:1.06,duration:.5,ease:'power3.out',overwrite:'auto'});
+    });
+    c.addEventListener('pointermove',e=>{
+      if(reduce) return;
+      const r=c.getBoundingClientRect();
+      ry(((e.clientX-r.left)/r.width-.5)*18); rx(-((e.clientY-r.top)/r.height-.5)*14);
+    });
+    c.addEventListener('pointerleave',()=>{
+      if(hovered===c) hovered=null;
+      // stay on top while shrinking back, so its edge never cuts across a neighbour
+      c.classList.remove('hover'); c.classList.add('leaving');
+      if(!hovered) orbit.classList.remove('paused');
+      gsap.to(t,{scale:1,duration:.5,ease:'power3.out',overwrite:'auto',onComplete:()=>c.classList.remove('leaving')}); rx(0); ry(0);
+    });
+  });
+  new IntersectionObserver(es=>{visible=es[0].isIntersecting}).observe(orbit);
+})();
 </script>
 </body>
 </html>
