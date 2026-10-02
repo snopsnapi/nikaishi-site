@@ -127,6 +127,7 @@ header{position:sticky;top:0;z-index:20;background:var(--header);backdrop-filter
 .facts span{font-size:14px;line-height:1.4;color:var(--ink-2);display:block;margin-top:4px}
 /* scan -> CAD 3D compare */
 .s3d-sec{background:var(--paper)}
+.s3d-sec.alt{background:var(--bg)}
 .s3d{position:relative;margin-top:40px;aspect-ratio:16/8;min-height:340px;border-radius:24px;overflow:hidden;background:radial-gradient(120% 90% at 50% 20%,#ffffff 0%,#e9ebee 70%,#dfe2e6 100%);border:1px solid var(--line);touch-action:pan-y}
 .is-dark .s3d{background:radial-gradient(120% 90% at 50% 20%,#2a2d32 0%,#17191c 75%,#111214 100%)}
 .s3d canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:none}
@@ -146,6 +147,10 @@ header{position:sticky;top:0;z-index:20;background:var(--header);backdrop-filter
 @media (prefers-reduced-motion:reduce){.s3d .s3d-handle::before,.s3d .s3d-handle i{animation:none}}
 .s3d-tag{position:absolute;top:18px;z-index:1;font:700 12px/1 Manrope;letter-spacing:.14em;text-transform:uppercase;padding:8px 12px;border-radius:999px;background:var(--card);color:var(--ink);border:1px solid var(--line)}
 .s3d-tag.l{left:18px}.s3d-tag.r{right:18px;background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.s3d-modes{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:3;display:flex;gap:2px;padding:3px;border-radius:999px;background:var(--card);border:1px solid var(--line)}
+.s3d-modes button{font:700 12px/1 Manrope;letter-spacing:.08em;text-transform:uppercase;padding:8px 14px;border-radius:999px;border:0;background:none;color:var(--ink-2);cursor:pointer;transition:.2s}
+.s3d-modes button[aria-pressed=true]{background:var(--red);color:#fff}
+.s3d-modes button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .s3d-status{position:absolute;inset:0;display:grid;place-items:center;color:var(--ink-2);font-weight:600;pointer-events:none}
 .s3d-hint{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);font-size:13px;color:var(--ink-2);background:var(--card);border:1px solid var(--line);padding:6px 12px;border-radius:999px;white-space:nowrap;pointer-events:none}
 @media (max-width:560px){.s3d{aspect-ratio:4/5}.s3d-hint{font-size:11px}}
@@ -396,10 +401,28 @@ footer a:hover{color:var(--red)}
       <h2>Из скана — в CAD</h2>
       <p class="lead">Решётка радиатора: слева сырой 3D-скан, справа готовая CAD-модель. Двигайте ползунок и вращайте деталь.</p>
     </div>
-    <div class="s3d reveal" id="scan3d">
+    <div class="s3d reveal" id="scan3d" data-preset="scan-cad" data-a="models/scan.glb" data-b="models/cad.glb" data-rot="0,3.14159265,0" data-view="-0.38,0.42,1">
       <canvas aria-label="3D-модель: скан и CAD решётки радиатора"></canvas>
       <span class="s3d-tag l">Скан</span><span class="s3d-tag r">CAD</span>
       <button class="s3d-handle" type="button" aria-label="Граница скан / CAD, стрелки влево-вправо"><i></i></button>
+      <span class="s3d-status">Загрузка…</span>
+      <span class="s3d-hint">Тяните ползунок · вращайте мышью или пальцем</span>
+    </div>
+  </div>
+</section>
+
+<section class="s3d-sec alt" id="quality">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="kicker">Сравнение</div>
+      <h2>Качество поверхностей</h2>
+      <p class="lead">Один и тот же козырёк двери: слева модель другого исполнителя, справа моя. Обе покрыты зеркалом с полосами, так поверхности проверяют в CAD. Ровные линии значат гладкую форму, ломаные выдают волны и изломы. Создаём 3D-модели, которые не нужно переделывать.</p>
+    </div>
+    <div class="s3d reveal" id="zebra3d" data-preset="zebra" data-a="models/visor_competitor.glb" data-b="models/visor_nikaishi.glb" data-rot="-1.5707963,0,0" data-view="-0.25,0.3,1">
+      <canvas aria-label="3D-сравнение двух моделей козырька двери"></canvas>
+      <span class="s3d-tag l">Было</span><span class="s3d-tag r">Стало</span>
+      <div class="s3d-modes" role="group" aria-label="Вид поверхности"><button type="button" data-look="zebra" aria-pressed="true">Зебра</button><button type="button" data-look="steel" aria-pressed="false">Сталь</button></div>
+      <button class="s3d-handle" type="button" aria-label="Граница между моделями, стрелки влево-вправо"><i></i></button>
       <span class="s3d-status">Загрузка…</span>
       <span class="s3d-hint">Тяните ползунок · вращайте мышью или пальцем</span>
     </div>
@@ -469,9 +492,9 @@ footer a:hover{color:var(--red)}
 
 <script type="importmap">{"imports":{"three":"./vendor/three/three.module.min.js","three/addons/":"./vendor/three/addons/"}}</script>
 <script>
-// load three.js + models only when the 3D block gets close to the viewport
-{const el=document.getElementById('scan3d');
- if(el) new IntersectionObserver((es,o)=>{if(es[0].isIntersecting){o.disconnect();import('./scan3d.js');}},{rootMargin:'400px'}).observe(el);}
+// load three.js only when a 3D block gets close to the viewport (each block then loads its own models)
+{const els=document.querySelectorAll('.s3d');
+ if(els.length){const o=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting)){o.disconnect();import('./scan3d.js');}},{rootMargin:'600px'});els.forEach(el=>o.observe(el));}}
 </script>
 <script src="vendor/gsap.min.js"></script>
 <script src="vendor/Flip.min.js"></script>
